@@ -19,7 +19,7 @@ impl Runtime {
 	}
 }
 fn main() {
-    * /TODO: Create a mutable variable `runtime`, which is a new instance of `Runtime`. */
+	/* TODO: Create a mutable variable `runtime`, which is a new instance of `Runtime`. */
 	/* TODO: Set the balance of `alice` to 100, allowing us to execute other transactions. */
 
 	// start emulating a block
@@ -37,4 +37,29 @@ fn main() {
 	// second transaction
 	/* TODO: Increment the nonce of `alice` again. */
 	/* TODO: Execute another balance transfer, this time from `alice` to `charlie` for 20. */
+
+	// creating a sample runtime
+	let mut runtime = Runtime::new();
+	let alice = "Alice".to_string();
+	let bob = "bob".to_string();
+	let charlie = "charlie".to_string();
+	// setting a balance for a sample user
+	runtime.balances.set_balance(&alice, 100);
+
+	// increment block number & assert correct block_number
+	runtime.system.inc_block_number();
+	assert_eq!(runtime.system.block_number(), 1);
+
+	// make transcations - first one
+
+	runtime.system.inc_nonce(&alice);
+	let _transaction_one = runtime
+		.balances
+		.transfer(alice.clone(), bob, 30)
+		.map_err(|e| eprintln!("{}", e));
+
+	// make transcations - second one
+	runtime.system.inc_nonce(&alice);
+	let _transaction_two =
+		runtime.balances.transfer(alice, charlie, 20).map_err(|e| eprintln!("{}", e));
 }
