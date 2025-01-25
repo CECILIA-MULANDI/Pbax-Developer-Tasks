@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+#[derive(Debug)]
 pub struct Pallet {
 	balances: BTreeMap<String, u128>,
 }

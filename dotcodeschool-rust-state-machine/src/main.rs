@@ -1,6 +1,6 @@
 mod balances;
 mod system;
-
+#[derive(Debug)]
 pub struct Runtime {
 	/* TODO:
 		- Create a field `system` which is of type `system::Pallet`.
@@ -62,4 +62,7 @@ fn main() {
 	runtime.system.inc_nonce(&alice);
 	let _transaction_two =
 		runtime.balances.transfer(alice, charlie, 20).map_err(|e| eprintln!("{}", e));
+
+	/* TODO: Print the final runtime state after all transactions. */
+	println!("The current runtime is: {:#?}", runtime);
 }
