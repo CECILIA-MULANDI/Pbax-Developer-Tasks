@@ -1,44 +1,39 @@
-/* TODO: You might need to update your imports. */
-use std::collections::BTreeMap;
-
-/*
-	TODO: Define the common types used in this pallet:
-		- `AccountID`
-		- `BlockNumber`
-		- `Nonce`
-
-	Then update this pallet to use these common types.
-*/
-type AccountID = String;
-type BlockNumber = u32;
-type Nonce = u32;
+use core::ops::AddAssign;
+use num::traits::{One, Zero};
+use std::{collections::BTreeMap, ops::Add};
+// type AccountID = String;
+// type BlockNumber = u32;
+// type Nonce = u32;
 /// This is the System Pallet.
 /// It handles low level state needed for your blockchain.
 #[derive(Debug)]
-pub struct Pallet {
-	/// The current block number.
-	/* TODO: Create a field `block_number` that stores a `u32`. */
-	/// A map from an account to their nonce.
-	/* TODO: Create a field `nonce` that is a `BTreeMap` from `String` to `u32`. */
+pub struct Pallet<AccountID, BlockNumber, Nonce> {
 	block_number: BlockNumber,
 	nonce: BTreeMap<AccountID, Nonce>,
 }
 
-impl Pallet {
+impl<AccountID, BlockNumber, Nonce> Pallet<AccountID, BlockNumber, Nonce>
+where
+	AccountID: Ord + Clone,
+	BlockNumber: Zero + One + AddAssign + Copy,
+	Nonce: Zero + One + Copy,
+{
 	/// Create a new instance of the System Pallet.
 	pub fn new() -> Self {
 		/* TODO: Return a new instance of the `Pallet` struct. */
-		Self { block_number: 0, nonce: BTreeMap::new() }
+		Self { block_number: BlockNumber::zero(), nonce: BTreeMap::new() }
 	}
-	pub fn block_number(&self) -> u32 {
+	pub fn block_number(&self) -> BlockNumber {
 		self.block_number
 	}
 	pub fn inc_block_number(&mut self) {
-		self.block_number += 1;
+		self.block_number += BlockNumber::one();
 	}
-	pub fn inc_nonce(&mut self, who: &String) {
-		let current_nonce = self.nonce.entry(who.clone()).or_insert(0);
-		*current_nonce += 1;
+	pub fn inc_nonce(&mut self, who: &AccountID) {
+		let nonce = *self.nonce.get(who).unwrap_or(&Nonce::zero());
+
+		let new_nonce = nonce + Nonce::one();
+		self.nonce.insert(who.clone(), new_nonce);
 	}
 }
 
@@ -46,15 +41,7 @@ impl Pallet {
 mod tests {
 	#[test]
 	fn init_system() {
-		/* TODO: Create a test which checks the following:
-			- Increment the current block number.
-			- Increment the nonce of `alice`.
-
-			- Check the block number is what we expect.
-			- Check the nonce of `alice` is what we expect.
-			- Check the nonce of `bob` is what we expect.
-		*/
-		let mut system = super::Pallet::new();
+		let mut system = super::Pallet::<String, u32, u32>::new();
 		system.inc_block_number();
 		system.inc_nonce(&"alice".to_string());
 		assert_eq!(system.block_number(), 1);
