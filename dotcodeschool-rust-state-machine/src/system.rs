@@ -1,38 +1,33 @@
 use core::ops::AddAssign;
 use num::traits::{One, Zero};
-use std::{collections::BTreeMap, ops::Add};
-// type AccountID = String;
-// type BlockNumber = u32;
-// type Nonce = u32;
-/// This is the System Pallet.
-/// It handles low level state needed for your blockchain.
+use std::collections::BTreeMap;
+pub trait Config {
+	type AccountID: Ord + Clone;
+	type BlockNumber: Zero + One + AddAssign + Copy;
+	type Nonce: Zero + One + Copy;
+}
 #[derive(Debug)]
-pub struct Pallet<AccountID, BlockNumber, Nonce> {
-	block_number: BlockNumber,
-	nonce: BTreeMap<AccountID, Nonce>,
+pub struct Pallet<T: Config> {
+	block_number: T::BlockNumber,
+	nonce: BTreeMap<T::AccountID, T::Nonce>,
 }
 
-impl<AccountID, BlockNumber, Nonce> Pallet<AccountID, BlockNumber, Nonce>
-where
-	AccountID: Ord + Clone,
-	BlockNumber: Zero + One + AddAssign + Copy,
-	Nonce: Zero + One + Copy,
-{
+impl<T: Config> Pallet<T> {
 	/// Create a new instance of the System Pallet.
 	pub fn new() -> Self {
 		/* TODO: Return a new instance of the `Pallet` struct. */
-		Self { block_number: BlockNumber::zero(), nonce: BTreeMap::new() }
+		Self { block_number: T::BlockNumber::zero(), nonce: BTreeMap::new() }
 	}
-	pub fn block_number(&self) -> BlockNumber {
+	pub fn block_number(&self) -> T::BlockNumber {
 		self.block_number
 	}
 	pub fn inc_block_number(&mut self) {
-		self.block_number += BlockNumber::one();
+		self.block_number += T::BlockNumber::one();
 	}
-	pub fn inc_nonce(&mut self, who: &AccountID) {
-		let nonce = *self.nonce.get(who).unwrap_or(&Nonce::zero());
+	pub fn inc_nonce(&mut self, who: &T::AccountID) {
+		let nonce = *self.nonce.get(who).unwrap_or(&T::Nonce::zero());
 
-		let new_nonce = nonce + Nonce::one();
+		let new_nonce = nonce + T::Nonce::one();
 		self.nonce.insert(who.clone(), new_nonce);
 	}
 }
@@ -41,7 +36,13 @@ where
 mod tests {
 	#[test]
 	fn init_system() {
-		let mut system = super::Pallet::<String, u32, u32>::new();
+		struct TestConfig;
+		impl super::Config for TestConfig {
+			type AccountID = String;
+			type BlockNumber = u32;
+			type Nonce = u32;
+		}
+		let mut system = super::Pallet::<TestConfig>::new();
 		system.inc_block_number();
 		system.inc_nonce(&"alice".to_string());
 		assert_eq!(system.block_number(), 1);
