@@ -5,3 +5,6 @@ The tasks include:
 
    i) The Balances Pallet
    ii) The System & Runtime
+
+2\_. Learning about Generic and Configurable types
+3\_.Executing Blocks and Dispatching calls
