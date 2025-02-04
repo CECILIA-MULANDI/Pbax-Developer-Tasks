@@ -27,7 +27,7 @@ impl<T: Config> Pallet<T> {
 		caller: T::AccountID,
 		to: T::AccountID,
 		amount: T::Balance,
-	) -> Result<(), &'static str> {
+	) -> crate::support::DispatchResult {
 		// get balance of caller & to
 		let caller_balance = self.balance(&caller);
 		let to_balance = self.balance(&to);
